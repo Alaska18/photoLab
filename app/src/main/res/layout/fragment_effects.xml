@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_height="wrap_content">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="20dp"
+        android:text="@string/effects"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:fontFamily="@font/assistant_extralight"
+        android:textSize="20sp"
+        android:background="@color/grey"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="20dp"
+        android:text="@string/brightness"
+        android:textColor="@color/black"
+        app:fontFamily="@font/assistant_extralight"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:background="#99ffffff"/>
+
+    <SeekBar
+        android:id="@+id/seekBarBrightness"
+        style="@android:style/Widget.DeviceDefault.Light.SeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="20dp"
+        android:text="@string/saturation"
+        android:textColor="@color/black"
+        app:fontFamily="@font/assistant_extralight"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:background="#99ffffff"/>
+
+    <SeekBar
+        android:id="@+id/seekBarSaturation"
+        style="@android:style/Widget.DeviceDefault.Light.SeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="20dp"
+        android:text="@string/hue"
+        android:textColor="@color/black"
+        app:fontFamily="@font/assistant_extralight"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:background="#99ffffff"/>
+
+    <SeekBar
+        android:id="@+id/seekBarHue"
+        style="@android:style/Widget.DeviceDefault.Light.SeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

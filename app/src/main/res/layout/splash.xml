@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#0E0C0E"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <include layout="@layout/intro_video"/>
+
+    <LinearLayout
+        android:id="@+id/AppName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:layout_centerVertical="true">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/splash_app_name"
+            android:textColor="@color/white"
+            android:textSize="35sp"
+            app:fontFamily="@font/assistant_extralight" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:gravity="center"
+            android:text="@string/tagLine"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            app:fontFamily="@font/assistant_extralight" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/AppName"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/insert_pic">
+
+        </ImageView>
+
+        <TextView
+            android:id="@+id/addPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:text="@string/insertPhoto"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            app:fontFamily="@font/assistant_extralight">
+
+        </TextView>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="15dp"
+            android:src="@drawable/add_pic">
+
+        </ImageView>
+
+        <TextView
+            android:id="@+id/insertPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:text="@string/takePhoto"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            app:fontFamily="@font/assistant_extralight">
+
+        </TextView>
+    </LinearLayout>
+</RelativeLayout>
