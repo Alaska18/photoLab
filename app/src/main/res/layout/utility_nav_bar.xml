@@ -6,14 +6,15 @@
     android:alpha="0.9"
     android:layout_height="wrap_content">
     <ImageView
-        android:id="@+id/check"
+        android:id="@+id/close"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/done"
+        android:src="@drawable/close"
         android:layout_margin = "10dp"
         android:layout_weight="1"/>
 
     <TextView
+        android:id="@+id/heading"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -24,11 +25,10 @@
         android:textColor="#00ddff"
         android:textStyle="bold" />
     <ImageView
-        android:id="@+id/close"
+        android:id="@+id/check"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/close"
+        android:src="@drawable/done"
         android:layout_margin = "10dp"
         android:layout_weight="1"/>
-
 </LinearLayout>

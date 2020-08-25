@@ -36,4 +36,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.github.zomato:androidphotofilters:1.0.2'
+    implementation 'jp.co.cyberagent.android:gpuimage:2.0.0'
 }

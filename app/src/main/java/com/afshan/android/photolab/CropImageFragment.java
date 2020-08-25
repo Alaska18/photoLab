@@ -1,11 +1,11 @@
 package com.afshan.android.photolab;
 
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +16,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 public class CropImageFragment extends Fragment
 {
+    static private Matrix matrix;
     static private Bitmap image;
     private CropImageView cropImageView;
     @Nullable
@@ -44,11 +45,17 @@ public class CropImageFragment extends Fragment
         if (A == 0 && B == 0)
         {
             cropImageView.clearAspectRatio();
-        }
-        else cropImageView.setAspectRatio(A, B);
+        } else if (A == -1 && B == -1) {
+            cropImageView.setCropShape(CropImageView.CropShape.OVAL);
+        } else cropImageView.setAspectRatio(A, B);
     }
     Bitmap getCroppedImage()
     {
         return cropImageView.getCroppedImage();
     }
+
+    void setRotation(float degrees) {
+        cropImageView.rotateImage((int) degrees);
+    }
+
 }

@@ -3,12 +3,10 @@ package com.afshan.android.photolab;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +33,8 @@ public class CropFragment extends Fragment
         final TextView tinderText = view.findViewById(R.id.tinderT);
         final TextView landscapeText = view.findViewById(R.id.landscapeT);
         final TextView circle = view.findViewById(R.id.circleT);
+        final ImageView rotateLeft = view.findViewById(R.id.rotate_left);
+        final ImageView rotateRight = view.findViewById(R.id.rotate_right);
         imageViewSquare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,6 +95,28 @@ public class CropFragment extends Fragment
             }
 
         });
+        ImageView imageViewCircle = view.findViewById(R.id.circle);
+        imageViewCircle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                itemClicked.itemClicked(-1, -1);
+                circle.setTextColor(getResources().getColor(R.color.blue_bright));
+                setColor(cropFreeText, fbPostText, tinderText, InstaPostText, squareText, landscapeText);
+            }
+        });
+        rotateLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                itemClicked.rotateClicked(-90);
+
+            }
+        });
+        rotateRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                itemClicked.rotateClicked(90);
+            }
+        });
 
     }
 
@@ -123,5 +145,7 @@ public class CropFragment extends Fragment
     interface ItemClicked
     {
         public void itemClicked(int AspectRatioA, int AspectRatioB);
+
+        public void rotateClicked(float degrees);
     }
 }
