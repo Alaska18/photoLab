@@ -17,42 +17,39 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.zomato.photofilters.SampleFilters;
-import com.zomato.photofilters.imageprocessors.Filter;
-
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClicked
-{
+
+public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClicked, FilterFragment.Image, EffectsFragment.Effects {
     static final int MAX_HEIGHT = 900;
-    Intent intent;
-    View parent;
-    int height = 0;
-    int width = 0;
-    private Uri uri;
-    View actionBar;
-    ImageView check;
+    static int height = 0;
+    static int width = 0;
+    static Uri uri;
     static Bitmap mBitmap;
     static ArrayList<Bitmap> bitmaps = new ArrayList<>();
+    Intent intent;
+    View parent;
+    View actionBar;
+    ImageView check;
+    PhotoFragment mPhotoFragment;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_lab);
         intent = getIntent();
         uri = intent.getData();
 
     }
+
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         bitmaps.clear();
         setActionBar(R.layout.lab_navbar);
         System.loadLibrary("NativeImageProcessor");
-
         // Initialisation of Views
         final ImageView crop = findViewById(R.id.crop);
         final ImageView filters = findViewById(R.id.filter);
@@ -68,36 +65,33 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
 
         // processing Input Image (Needs some more work)
         final Bitmap bitmap = adjustImageBoundsMin();
-
-        Filter filter = SampleFilters.getStarLitFilter();
-        Bitmap out = filter.processFilter(bitmap);
-        bitmaps.add(0, out);
+        bitmaps.add(0, bitmap);
 
         // setting up fragment
         setUtilityFragment(photoFragment);
 
         // passing image to photo fragment
         PhotoFragment.setBitmap(bitmaps.get(0));
-
-
         final View menuBar = findViewById(R.id.navigation_menu);
         parent = findViewById(R.id.relativeLayout);
-
         // Onclick listeners
         crop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final CropFragment cropFragment = new CropFragment();
+                fragmentTransition(cropFragment);
 
                 //setting up action bar
                 setActionBar(R.layout.utility_nav_bar);
                 actionBar = getSupportActionBar().getCustomView();
+                TextView heading = actionBar.findViewById(R.id.heading);
+                heading.setText(R.string.Crop_rotate);
+
                 check = actionBar.findViewById(R.id.check);
 
                 //setting up fragment
                 CropImageFragment cropImageFragment = new CropImageFragment();
                 setUtilityFragment(cropImageFragment);
-                fragmentTransition(cropFragment);
 
                 //passing image to crop image fragment
                 CropImageFragment.setBitmap(bitmaps.get(0));
@@ -105,6 +99,29 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
                 //setting up visibility
                 menuBar.setVisibility(View.GONE);
                 frame.setVisibility(View.VISIBLE);
+                ImageView close = actionBar.findViewById(R.id.close);
+                close.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+
+                        // only post image setting work
+                        setActionBar(R.layout.lab_navbar);
+
+                        // initialising fragment and hiding it
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        fragmentManager.beginTransaction().hide(cropFragment);
+
+                        PhotoFragment photoFragment = new PhotoFragment();
+                        setUtilityFragment(photoFragment);
+
+
+                        // re-forming visibility
+                        menuBar.setVisibility(View.VISIBLE);
+                        frame.setVisibility(View.GONE);
+
+                    }
+                });
 
                 // In onclick listener
                 check.setOnClickListener(new View.OnClickListener() {
@@ -112,7 +129,7 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
                     public void onClick(View view) {
 
                         // returning image
-                        CropImageFragment cropImageFragment = (CropImageFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+                        CropImageFragment cropImageFragment = (CropImageFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
                         Bitmap bitmap = cropImageFragment.getCroppedImage();
 
                         // adding to the list of bitmaps to keep track
@@ -128,7 +145,7 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
                         //setting old action bar
                         setActionBar(R.layout.lab_navbar);
 
-                        // initialising fragment
+                        // initialising fragment and hiding it.
                         FragmentManager fragmentManager = getSupportFragmentManager();
                         fragmentManager.beginTransaction().hide(cropFragment);
 
@@ -148,6 +165,12 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
                 // initialising filter fragment
                 final FilterFragment filterFragment = new FilterFragment();
 
+                // transitioning fragment
+                fragmentTransition(filterFragment);
+
+                // visibility decisions
+                menuBar.setVisibility(View.GONE);
+                frame.setVisibility(View.VISIBLE);
                 //setting new action bar
                 setActionBar(R.layout.utility_nav_bar);
 
@@ -156,12 +179,53 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
                 TextView heading = actionBar.findViewById(R.id.heading);
                 heading.setText(R.string.filter);
 
-                // transitioning fragment
-                fragmentTransition(filterFragment);
+                // setting on click listeners for the okay and close.
+                ImageView check = actionBar.findViewById(R.id.check);
+                check.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Bitmap bitmap = PhotoFragment.buffer;
+                        bitmaps.add(0, bitmap);
 
-                // visibility decisions
-                menuBar.setVisibility(View.GONE);
-                frame.setVisibility(View.VISIBLE);
+                        //setting new image
+                        PhotoFragment.setBitmap(bitmaps.get(0));
+
+                        // post image setting work
+                        setActionBar(R.layout.lab_navbar);
+
+                        // initialising fragment and hiding it
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        fragmentManager.beginTransaction().hide(filterFragment);
+
+                        // re-forming visibility
+                        menuBar.setVisibility(View.VISIBLE);
+                        frame.setVisibility(View.GONE);
+
+                    }
+                });
+
+                ImageView close = actionBar.findViewById(R.id.close);
+                close.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        PhotoFragment photoFragment1 = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+                        photoFragment1.setRemoveFilter();
+
+                        // only post image setting work
+                        setActionBar(R.layout.lab_navbar);
+
+                        // initialising fragment and hiding it
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        fragmentManager.beginTransaction().hide(filterFragment);
+
+                        // re-forming visibility
+                        menuBar.setVisibility(View.VISIBLE);
+                        frame.setVisibility(View.GONE);
+
+                    }
+                });
+
             }
         });
         fit.setOnClickListener(new View.OnClickListener() {
@@ -175,9 +239,69 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
         effects.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EffectsFragment effectsFragment = new EffectsFragment();
+
+                final EffectsFragment effectsFragment = new EffectsFragment();
                 fragmentTransition(effectsFragment);
+
+                PhotoFragment photoFragment1 = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+                photoFragment1.setImages();
+
+                setActionBar(R.layout.utility_nav_bar);
+
+                //changing text
+                actionBar = getSupportActionBar().getCustomView();
+                TextView heading = actionBar.findViewById(R.id.heading);
+                heading.setText(R.string.effects);
                 menuBar.setVisibility(View.GONE);
+                frame.setVisibility(View.VISIBLE);
+
+
+                ImageView check = actionBar.findViewById(R.id.check);
+                check.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Bitmap bitmap = PhotoFragment.buffer;
+                        bitmaps.add(0, bitmap);
+
+                        //setting new image
+                        PhotoFragment.setBitmap(bitmaps.get(0));
+
+                        // post image setting work
+                        setActionBar(R.layout.lab_navbar);
+
+                        // initialising fragment and hiding it
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        fragmentManager.beginTransaction().hide(effectsFragment);
+
+                        // re-forming visibility
+                        menuBar.setVisibility(View.VISIBLE);
+                        frame.setVisibility(View.GONE);
+
+                    }
+                });
+
+                ImageView close = actionBar.findViewById(R.id.close);
+                close.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        PhotoFragment photoFragment1 = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+                        photoFragment1.setRemoveFilter();
+
+                        // only post image setting work
+                        setActionBar(R.layout.lab_navbar);
+
+                        // initialising fragment and hiding it
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        fragmentManager.beginTransaction().hide(effectsFragment);
+
+                        // re-forming visibility
+                        menuBar.setVisibility(View.VISIBLE);
+                        frame.setVisibility(View.GONE);
+
+                    }
+                });
+
             }
         });
         text.setOnClickListener(new View.OnClickListener() {
@@ -189,46 +313,41 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
             }
         });
     }
-    private void setActionBar(int layoutId)
-    {
-        try
-        {
+
+    private void setActionBar(int layoutId) {
+        try {
             this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             getSupportActionBar().setDisplayShowCustomEnabled(true);
             getSupportActionBar().setCustomView(layoutId);
             getSupportActionBar().setElevation(3.0f);
-        }
-        catch (NullPointerException n)
-        {
+        } catch (NullPointerException n) {
             Toast.makeText(PhotoLab.this, R.string.settingActionBar, Toast.LENGTH_SHORT).show();
         }
     }
-    private void fragmentTransition(Fragment cropFragment)
-    {
+
+    private void fragmentTransition(Fragment cropFragment) {
         try {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_frame, cropFragment);
+            fragmentTransaction.setCustomAnimations(R.anim.animations, R.anim.slide_out, R.anim.animations, R.anim.slide_out);
             fragmentTransaction.show(cropFragment);
             fragmentTransaction.commit();
-        }
-        catch (IllegalStateException i)
-        {
+
+        } catch (IllegalStateException i) {
             Toast.makeText(this, R.string.creatingFragment, Toast.LENGTH_SHORT).show();
         }
     }
-    public Bitmap uriToBitmap(Uri selectedFileUri)
-    {
+
+    public Bitmap uriToBitmap(Uri selectedFileUri) {
         Bitmap image = null;
-        try
-        {
+        try {
             ParcelFileDescriptor parcelFileDescriptor = getContentResolver().openFileDescriptor(selectedFileUri, "r");
             assert parcelFileDescriptor != null;
             FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
             image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
             parcelFileDescriptor.close();
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             Toast.makeText(this, R.string.loadingImage, Toast.LENGTH_SHORT).show();
         }
         assert image != null;
@@ -236,35 +355,32 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
         width = image.getWidth();
         return image;
     }
-    private Bitmap adjustImageBoundsMin( )
-    {
+
+    private Bitmap adjustImageBoundsMin() {
         Bitmap resizedImage = uriToBitmap(uri);
-        if (height < MAX_HEIGHT)
-        {
-            resizedImage = Bitmap.createScaledBitmap(resizedImage, (int) (width * 2), (int) (height * 2), true);
+        if (height < MAX_HEIGHT) {
+            resizedImage = Bitmap.createScaledBitmap(resizedImage, width * 2, height * 2, true);
         } else
             resizedImage = Bitmap.createScaledBitmap(resizedImage, (int) (resizedImage.getWidth() * 1.01), (int) (resizedImage.getHeight() * 1.01), true);
         return resizedImage;
     }
-    private void setUtilityFragment(Fragment fragment)
-    {
+
+    private void setUtilityFragment(Fragment fragment) {
         try {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.fragmentImage, fragment);
+            fragmentTransaction.setCustomAnimations(R.anim.animations, R.anim.slide_out, R.anim.animations, R.anim.slide_out);
             fragmentTransaction.show(fragment);
             fragmentTransaction.commit();
-        }
-        catch (IllegalStateException i)
-        {
+        } catch (IllegalStateException i) {
             Toast.makeText(this, R.string.creatingFragment, Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
-    public void itemClicked(int AspectRatioA, int AspectRatioB)
-    {
-        CropImageFragment cropImageFragment = (CropImageFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+    public void itemClicked(int AspectRatioA, int AspectRatioB) {
+        CropImageFragment cropImageFragment = (CropImageFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
         cropImageFragment.setAspectRatio(AspectRatioA, AspectRatioB);
 
     }
@@ -274,4 +390,68 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
         CropImageFragment cropImageFragment = (CropImageFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
         cropImageFragment.setRotation(degrees);
     }
+
+
+    /*@Override
+    public void setSaturation(int progress)
+    {
+        PhotoFragment photoFragment = (PhotoFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        photoFragment.setImageSaturation(progress);
+    }*/
+
+    @Override
+    public void setOriginalImage() {
+        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        photoFragment.setRemoveFilter();
+    }
+
+    @Override
+    public void saturationChanged(float progress) {
+        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        photoFragment.setSaturation(progress);
+    }
+
+
+    @Override
+    public void contrastChanged(float progress) {
+        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        photoFragment.setContrast(progress);
+    }
+
+    @Override
+    public void brightnessChanged(float brightness) {
+        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        photoFragment.setBrightness(brightness);
+    }
+
+    @Override
+    public void sharpnessChanged(float sharpness) {
+        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        photoFragment.setSharpness(sharpness);
+    }
+
+    @Override
+    public void shadowsChanged(float shadows) {
+        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        photoFragment.setShadows(shadows);
+    }
+
+    @Override
+    public void highlightsChanged(float highlight) {
+        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        photoFragment.setHighlight(highlight);
+    }
+
+    @Override
+    public void exposureChanged(float exposure) {
+        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        photoFragment.setExposure(exposure);
+    }
+
+    @Override
+    public void okayClicked() {
+        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        photoFragment.okayClicked();
+    }
+
 }

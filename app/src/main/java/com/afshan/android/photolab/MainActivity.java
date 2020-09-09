@@ -1,7 +1,5 @@
 package com.afshan.android.photolab;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -11,19 +9,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 
 public class MainActivity extends AppCompatActivity
 {
     VideoView intro;
     static final int REQUEST = 50;
-    static final int RESULT = -50;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
-        intro = (VideoView)findViewById(R.id.introVideo);
+        intro = findViewById(R.id.introVideo);
         setVideo();
 
     }
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity
           Intent intent = new Intent();
           intent.setType("image/*");
           intent.setAction(Intent.ACTION_GET_CONTENT);
-          startActivityForResult(intent.createChooser(intent, getResources().getString(R.string.selectPic)), REQUEST);
+          startActivityForResult(Intent.createChooser(intent, getResources().getString(R.string.selectPic)), REQUEST);
 
       }
       catch (NullPointerException n)
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == REQUEST)
         {
             Intent intent = new Intent(this, PhotoLab.class);
+            assert data != null;
             intent.setData(data.getData());
             startActivity(intent);
         }

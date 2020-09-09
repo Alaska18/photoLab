@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:layout_marginTop="10dp"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:alpha="0.90"
+    android:background="@color/black"
+    android:orientation="vertical">
 
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -41,7 +44,7 @@
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="5dp"
                     android:text="@string/freeCrop"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
                     app:fontFamily="@font/assistant_extralight" />
             </LinearLayout>
@@ -71,7 +74,7 @@
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="5dp"
                     android:text="@string/square"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
                     app:fontFamily="@font/assistant_extralight" />
             </LinearLayout>
@@ -101,7 +104,7 @@
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="5dp"
                     android:text="@string/instaPost"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
                     app:fontFamily="@font/assistant_extralight" />
             </LinearLayout>
@@ -131,7 +134,7 @@
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="5dp"
                     android:text="@string/fbPost"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
                     app:fontFamily="@font/assistant_extralight" />
             </LinearLayout>
@@ -161,7 +164,7 @@
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="5dp"
                     android:text="@string/tinder"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
                     app:fontFamily="@font/assistant_extralight" />
             </LinearLayout>
@@ -191,7 +194,7 @@
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="5dp"
                     android:text="@string/circle"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
                     app:fontFamily="@font/assistant_extralight" />
             </LinearLayout>
@@ -221,12 +224,13 @@
                     android:layout_marginLeft="5dp"
                     android:layout_marginTop="5dp"
                     android:text="@string/landscape"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="12sp"
                     app:fontFamily="@font/assistant_extralight" />
             </LinearLayout>
         </LinearLayout>
     </HorizontalScrollView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -259,7 +263,7 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:text="@string/rotate90l"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="12sp"
                 app:fontFamily="@font/assistant_extralight" />
         </LinearLayout>
@@ -290,10 +294,10 @@
                 android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:text="@string/rotate90r"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="12sp"
                 app:fontFamily="@font/assistant_extralight" />
         </LinearLayout>
-        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,7 +20,9 @@ public class MyAdapter extends RecyclerView.Adapter {
     private ImageView imageView;
     private TextView textView;
     private ViewGroup viewGroup;
+    private View filterTemplate;
     private Context context;
+    private ProgressBar progressBar;
 
     MyAdapter(Context context, ArrayList<MenuFilter> filters) {
 
@@ -36,19 +39,37 @@ public class MyAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
-        LoadFilter loadFilter = new LoadFilter(filters.get(position).getFilter(), imageView, context);
-        loadFilter.execute();
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
+        //progressBar.setVisibility(View.VISIBLE);
+        if (filters.get(position).getGpuImageFilterGroup() == null && filters.get(position).getGpuImageFilter() == null) {
+            LoadFilter loadFilter = new LoadFilter(filters.get(position).getFilter(), filters.get(position).getFilterName(), filters, imageView, progressBar);
+            loadFilter.execute();
+        } else {
+            LoadFilter loadFilter = new LoadFilter(filters, imageView, progressBar, context, position);
+            loadFilter.execute();
+        }
+        final FragmentManager fragmentManager = ((AppCompatActivity) context).getSupportFragmentManager();
+        final FilterFragment filterFragment = (FilterFragment) fragmentManager.findFragmentById(R.id.fragment_frame);
+
+
+        filterFragment.setTextColor(position);
         textView.setText(filters.get(position).getFilterName());
-        imageView.setOnClickListener(new View.OnClickListener() {
+        filterTemplate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FragmentManager fragmentManager = ((AppCompatActivity) context).getSupportFragmentManager();
                 PhotoFragment photoFragment = (PhotoFragment) fragmentManager.findFragmentById(R.id.fragmentImage);
                 assert photoFragment != null;
-                photoFragment.setFilter(filters.get(position).getFilter());
+                if (filters.get(position).getGpuImageFilter() == null && filters.get(position).getGpuImageFilterGroup() == null) {
+                    photoFragment.setFilter(filters.get(position).getFilter());
+                } else if (filters.get(position).getGpuImageFilterGroup() != null) {
+                    photoFragment.setGPUImageFilterGroup(filters.get(position).getGpuImageFilterGroup());
+                } else {
+                    photoFragment.setGPUImageFilter(filters.get(position).getGpuImageFilter());
+                }
+                filterFragment.setName(filters.get(position).getFilterName());
             }
         });
+
     }
 
     @Override
@@ -73,6 +94,8 @@ public class MyAdapter extends RecyclerView.Adapter {
             super(itemView);
             imageView = itemView.findViewById(R.id.menu_image);
             textView = itemView.findViewById(R.id.menu_text);
+            progressBar = itemView.findViewById(R.id.progressBarT);
+            filterTemplate = itemView.findViewById(R.id.filter_template);
         }
     }
 }

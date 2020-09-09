@@ -15,6 +15,10 @@
         <item name="android:textSize">24sp</item>
     </style>
 
+    <style name="compareAlertDialogue">
+        <item name="android:windowBackground">@drawable/compare_alert_background</item>
+    </style>
+
     <style name="splashStyle.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

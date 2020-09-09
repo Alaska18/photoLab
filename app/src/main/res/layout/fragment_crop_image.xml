@@ -9,6 +9,7 @@
         custom:cropGuidelines="onTouch"
         custom:cropBorderLineColor="@android:color/darker_gray"
         custom:cropAutoZoomEnabled="true"
+        custom:cropMultiTouchEnabled="true"
         android:layout_centerInParent="true"
         android:layout_height="match_parent"
         custom:cropBorderCornerColor="@android:color/holo_blue_bright"
