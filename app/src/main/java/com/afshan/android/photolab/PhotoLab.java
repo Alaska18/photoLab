@@ -1,25 +1,32 @@
 package com.afshan.android.photolab;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+
+import es.dmoral.toasty.Toasty;
 
 
 public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClicked, FilterFragment.Image, EffectsFragment.Effects {
@@ -35,20 +42,130 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
     ImageView check;
     PhotoFragment mPhotoFragment;
 
+    public static int getOrientation(Context context, Uri photoUri) {
+
+        Cursor cursor = context.getContentResolver().query(photoUri,
+                new String[]{MediaStore.Images.ImageColumns.ORIENTATION}, null, null, null);
+
+        if (cursor == null || cursor.getCount() != 1) {
+            return 90;  //Assuming it was taken portrait
+        }
+
+        cursor.moveToFirst();
+        return cursor.getInt(0);
+    }
+
+    public static Bitmap getCorrectlyOrientedImage(Context context, Uri photoUri, int maxwidth)
+            throws IOException {
+
+        InputStream is = context.getContentResolver().openInputStream(photoUri);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(is, null, options);
+        assert is != null;
+        is.close();
+
+        int actualHeight = options.outHeight;
+        int actualWidth = options.outWidth;
+
+        int orientation = getOrientation(context, photoUri);
+
+        if (orientation == 90 || orientation == 270) {
+            actualHeight = options.outHeight;
+            actualWidth = options.outWidth;
+        } else {
+            actualWidth = options.outWidth;
+            actualHeight = options.outHeight;
+        }
+
+//      max Height and width values of the compressed image is taken as 816x612
+
+        float maxHeight = 912.0f;
+        float maxWidth = 716.0f;
+        float imgRatio = actualWidth / (float) actualHeight;
+        float maxRatio = maxWidth / (maxHeight);
+
+//      width and height values are set maintaining the aspect ratio of the image
+
+        if (actualHeight > maxHeight || actualWidth > maxWidth) {
+            if (imgRatio < maxRatio) {
+                imgRatio = maxHeight / actualHeight;
+                actualWidth = (int) (imgRatio * actualWidth);
+                actualHeight = (int) maxHeight;
+            } else if (imgRatio > maxRatio) {
+                imgRatio = maxWidth / actualWidth;
+                actualHeight = (int) (imgRatio * actualHeight);
+                actualWidth = (int) maxWidth;
+            } else {
+                actualHeight = (int) maxHeight;
+                actualWidth = (int) maxWidth;
+
+            }
+        }
+        options.inSampleSize = calculateInSampleSize(options, actualWidth, actualHeight);
+
+        options.inJustDecodeBounds = false;
+
+//      this options allow android to claim the bitmap memory if it runs low on memory
+        options.inPurgeable = true;
+        options.inInputShareable = true;
+        options.inTempStorage = new byte[16 * 1024];
+
+        Bitmap srcBitmap;
+        is = context.getContentResolver().openInputStream(photoUri);
+        srcBitmap = BitmapFactory.decodeStream(is, null, options);
+
+
+        if (orientation > 0) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(orientation);
+
+            assert srcBitmap != null;
+            srcBitmap = Bitmap.createBitmap(srcBitmap, 0, 0, srcBitmap.getWidth(),
+                    srcBitmap.getHeight(), matrix, true);
+        }
+
+        return srcBitmap;
+    }
+
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_lab);
         intent = getIntent();
         uri = intent.getData();
+        Toasty.Config.getInstance().setTextSize(10).apply();
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onResume() {
         super.onResume();
         bitmaps.clear();
         setActionBar(R.layout.lab_navbar);
+        System.out.println(uri);
         System.loadLibrary("NativeImageProcessor");
         // Initialisation of Views
         final ImageView crop = findViewById(R.id.crop);
@@ -57,14 +174,17 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
         final ImageView effects = findViewById(R.id.effects);
         final ImageView text = findViewById(R.id.text);
         final View frame = findViewById(R.id.fragment_frame);
-        mBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.photo_reference);
-        mBitmap = Bitmap.createScaledBitmap(mBitmap, 400, 400, false);
 
 
         final PhotoFragment photoFragment = new PhotoFragment();
 
-        // processing Input Image (Needs some more work)
-        final Bitmap bitmap = adjustImageBoundsMin();
+        Bitmap bitmap = null;
+        try {
+            bitmap = getCorrectlyOrientedImage(this, uri, 0);
+        } catch (IOException e) {
+            System.out.println("here!");
+            e.printStackTrace();
+        }
         bitmaps.add(0, bitmap);
 
         // setting up fragment
@@ -112,7 +232,6 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
                         FragmentManager fragmentManager = getSupportFragmentManager();
                         fragmentManager.beginTransaction().hide(cropFragment);
 
-                        PhotoFragment photoFragment = new PhotoFragment();
                         setUtilityFragment(photoFragment);
 
 
@@ -136,8 +255,7 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
                         bitmaps.add(0, bitmap);
 
                         // re initialising photo fragment
-                        PhotoFragment photoFragment1 = new PhotoFragment();
-                        setUtilityFragment(photoFragment1);
+                        setUtilityFragment(photoFragment);
 
                         // passing new image
                         PhotoFragment.setBitmap(bitmaps.get(0));
@@ -162,6 +280,7 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
             @Override
             public void onClick(View view) {
 
+                Toasty.custom(PhotoLab.this, R.string.filtermessage, null, R.color.blue_bright, Toasty.LENGTH_LONG, false, true).show();
                 // initialising filter fragment
                 final FilterFragment filterFragment = new FilterFragment();
 
@@ -189,6 +308,7 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
 
                         //setting new image
                         PhotoFragment.setBitmap(bitmaps.get(0));
+                        photoFragment.removeOnFlingListener();
 
                         // post image setting work
                         setActionBar(R.layout.lab_navbar);
@@ -209,8 +329,8 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
                     @Override
                     public void onClick(View view) {
 
-                        PhotoFragment photoFragment1 = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-                        photoFragment1.setRemoveFilter();
+                        photoFragment.setRemoveFilter();
+                        photoFragment.removeOnFlingListener();
 
                         // only post image setting work
                         setActionBar(R.layout.lab_navbar);
@@ -242,9 +362,6 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
 
                 final EffectsFragment effectsFragment = new EffectsFragment();
                 fragmentTransition(effectsFragment);
-
-                PhotoFragment photoFragment1 = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-                photoFragment1.setImages();
 
                 setActionBar(R.layout.utility_nav_bar);
 
@@ -339,32 +456,6 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
         }
     }
 
-    public Bitmap uriToBitmap(Uri selectedFileUri) {
-        Bitmap image = null;
-        try {
-            ParcelFileDescriptor parcelFileDescriptor = getContentResolver().openFileDescriptor(selectedFileUri, "r");
-            assert parcelFileDescriptor != null;
-            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-            image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-            parcelFileDescriptor.close();
-        } catch (IOException e) {
-            Toast.makeText(this, R.string.loadingImage, Toast.LENGTH_SHORT).show();
-        }
-        assert image != null;
-        height = image.getHeight();
-        width = image.getWidth();
-        return image;
-    }
-
-    private Bitmap adjustImageBoundsMin() {
-        Bitmap resizedImage = uriToBitmap(uri);
-        if (height < MAX_HEIGHT) {
-            resizedImage = Bitmap.createScaledBitmap(resizedImage, width * 2, height * 2, true);
-        } else
-            resizedImage = Bitmap.createScaledBitmap(resizedImage, (int) (resizedImage.getWidth() * 1.01), (int) (resizedImage.getHeight() * 1.01), true);
-        return resizedImage;
-    }
-
     private void setUtilityFragment(Fragment fragment) {
         try {
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -391,14 +482,6 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
         cropImageFragment.setRotation(degrees);
     }
 
-
-    /*@Override
-    public void setSaturation(int progress)
-    {
-        PhotoFragment photoFragment = (PhotoFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-        photoFragment.setImageSaturation(progress);
-    }*/
-
     @Override
     public void setOriginalImage() {
         PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
@@ -406,52 +489,14 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
     }
 
     @Override
-    public void saturationChanged(float progress) {
+    public void setImage(Bitmap b) {
         PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-        photoFragment.setSaturation(progress);
-    }
-
-
-    @Override
-    public void contrastChanged(float progress) {
-        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-        photoFragment.setContrast(progress);
+        photoFragment.setImage(b);
     }
 
     @Override
-    public void brightnessChanged(float brightness) {
+    public void addOnFlingListener() {
         PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-        photoFragment.setBrightness(brightness);
+        photoFragment.addOnFlingListener();
     }
-
-    @Override
-    public void sharpnessChanged(float sharpness) {
-        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-        photoFragment.setSharpness(sharpness);
-    }
-
-    @Override
-    public void shadowsChanged(float shadows) {
-        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-        photoFragment.setShadows(shadows);
-    }
-
-    @Override
-    public void highlightsChanged(float highlight) {
-        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-        photoFragment.setHighlight(highlight);
-    }
-
-    @Override
-    public void exposureChanged(float exposure) {
-        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-        photoFragment.setExposure(exposure);
-    }
-
-    @Override
-    public void okayClicked() {
-        PhotoFragment photoFragment = (PhotoFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-        photoFragment.okayClicked();
-    }
-
 }

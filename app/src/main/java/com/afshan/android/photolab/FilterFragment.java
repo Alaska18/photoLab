@@ -46,7 +46,7 @@ import jp.co.cyberagent.android.gpuimage.filter.GPUImageWhiteBalanceFilter;
 public class FilterFragment extends Fragment {
     static RecyclerView recyclerView;
     static RecyclerView.LayoutManager layoutManager;
-    private static ArrayList<MenuFilter> filters;
+    static ArrayList<MenuFilter> filters;
     public View view;
     private TextView textView;
     private TextView pro;
@@ -67,6 +67,7 @@ public class FilterFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         addData();
+        mImage.addOnFlingListener();
         {
             /**
              * Views Initialisation
@@ -166,33 +167,6 @@ public class FilterFragment extends Fragment {
                     premium.setBackgroundColor(getResources().getColor(R.color.white));
                 }
             });
-        /*seekBar = view.findViewById(R.id.seekBar);
-        seekBar.setMax(150);
-        seekBar.setProgress(100);
-        seekBar.setKeyProgressIncrement(1);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b)
-            {
-                if (isChanged)
-                {
-                    MyImage.setSaturation(i);
-
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar)
-            {
-                    isChanged = true;
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
-                  isChanged = false;
-            }
-        });*/
             adapter.notifyDataSetChanged();
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false);
             recyclerView.setLayoutManager(linearLayoutManager);
@@ -261,84 +235,11 @@ public class FilterFragment extends Fragment {
         mImage = (Image) context;
     }
 
-   /* interface Image
-    {
-        void setSaturation(int progress);
-    }*/
-
     public void setName(String name) {
         textView.setText(name);
         // seekBar.setProgress(50);
     }
 
-    /* public void currentFilter (int position)
-     {
-        switch (position)
-        {
-            case 0:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(102);
-            }
-            case 1:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(100);
-            }
-            case 2:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(100);
-            }
-            case 3:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(100);
-            }
-            case 4:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(100);
-            }
-            case 5:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(100);
-            }
-            case 6:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(100);
-            }
-            case 7:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(100);
-            }
-            case 8:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(100);
-            }
-            case 9:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(100);
-            }
-            case 10:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(100);
-            }
-            case 11:
-            {
-                seekBar.setMax(150);
-                seekBar.setProgress(30);
-            }
-
-        }
-
-     }*/
     public void setTextColor(int pos) {
         if (pos <= 12) {
             pro.setBackground(getResources().getDrawable(R.drawable.fragment_background));
@@ -375,5 +276,7 @@ public class FilterFragment extends Fragment {
 
     interface Image {
         void setOriginalImage();
+
+        public void addOnFlingListener();
     }
 }

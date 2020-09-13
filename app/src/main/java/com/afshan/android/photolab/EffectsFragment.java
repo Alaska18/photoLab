@@ -2,6 +2,7 @@ package com.afshan.android.photolab;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +17,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.xw.repo.BubbleSeekBar;
+
+import jp.co.cyberagent.android.gpuimage.GPUImage;
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageBrightnessFilter;
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageContrastFilter;
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageExposureFilter;
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilterGroup;
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageHighlightShadowFilter;
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageSaturationFilter;
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageSharpenFilter;
 
 public class EffectsFragment extends Fragment {
     private View saturation;
@@ -26,14 +36,22 @@ public class EffectsFragment extends Fragment {
     private View sharpness;
     private View shadows;
     private View highlights;
-    private View hue;
     private View exposure;
-    private View rgb;
     private View horizontalMenu;
     private Effects effects;
     private View okay;
     private View compare;
     private View mView;
+    private ImageView close, compareFinal;
+    private View utility;
+    private GPUImageFilterGroup gpuImageFilterGroup = new GPUImageFilterGroup();
+    private GPUImageSaturationFilter gpuImageSaturationFilter;
+    private GPUImageContrastFilter gpuImageContrastFilter;
+    private GPUImageSharpenFilter gpuImageSharpenFilter;
+    private GPUImageHighlightShadowFilter gpuImageHighlightShadowFilter;
+    private GPUImageExposureFilter gpuImageExposureFilter;
+    private GPUImageBrightnessFilter gpuImageBrightnessFilter;
+    private GPUImage gpuImage;
     private BubbleSeekBar sat, bright, cont, shadow, sharp, highlight, expose;
 
     @Nullable
@@ -61,10 +79,25 @@ public class EffectsFragment extends Fragment {
         shadows = view.findViewById(R.id.shadows);
         highlights = view.findViewById(R.id.highlight);
         exposure = view.findViewById(R.id.exposure);
-        hue = view.findViewById(R.id.Hue);
-        rgb = view.findViewById(R.id.rgb);
+        utility = view.findViewById(R.id.utility_effects);
+        close = view.findViewById(R.id.close_effects);
+        compareFinal = view.findViewById(R.id.compare_effects_final);
         compare = view.findViewById(R.id.compare_effects);
         okay = view.findViewById(R.id.okay);
+        gpuImage = new GPUImage(getContext());
+        gpuImageSaturationFilter = new GPUImageSaturationFilter(1.0f);
+        gpuImageContrastFilter = new GPUImageContrastFilter(1.0f);
+        gpuImageBrightnessFilter = new GPUImageBrightnessFilter(0.0f);
+        gpuImageSharpenFilter = new GPUImageSharpenFilter(0.0f);
+        gpuImageExposureFilter = new GPUImageExposureFilter(0.0f);
+        gpuImageHighlightShadowFilter = new GPUImageHighlightShadowFilter(0.0f, 1.0f);
+        gpuImageFilterGroup.addFilter(gpuImageSaturationFilter);
+        gpuImageFilterGroup.addFilter(gpuImageBrightnessFilter);
+        gpuImageFilterGroup.addFilter(gpuImageContrastFilter);
+        gpuImageFilterGroup.addFilter(gpuImageSharpenFilter);
+        gpuImageFilterGroup.addFilter(gpuImageExposureFilter);
+        gpuImageFilterGroup.addFilter(gpuImageHighlightShadowFilter);
+        gpuImageFilterGroup.addFilter(gpuImageHighlightShadowFilter);
         mView = view;
 
     }
@@ -72,9 +105,8 @@ public class EffectsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        compare.setOnClickListener(new
-        class SeekBarListener implements BubbleSeekBar.OnProgressChangedListener {
-            public View v;
+        class  SeekBarListener implements BubbleSeekBar.OnProgressChangedListener {
+            private View v;
 
             public void setView(View v) {
                 this.v = v;
@@ -83,32 +115,43 @@ public class EffectsFragment extends Fragment {
             @Override
             public void onProgressChanged(BubbleSeekBar seekBar, int a, float i, boolean b) {
                 if (v.getId() == R.id.saturation) {
-                    EffectsUtility.satVal = a;
-                    effects.saturationChanged(i / 10.0f);
+                    EffectsUtility.satVal = i;
+                    gpuImageSaturationFilter.setSaturation(i / 10.0f);
+                    setFilter(0, gpuImageSaturationFilter);
                 }
                 if (v.getId() == R.id.brightness) {
-                    EffectsUtility.brightVal = a;
-                    effects.brightnessChanged((i - 10.0f) / 10.0f);
+                    EffectsUtility.brightVal = i;
+                    gpuImageBrightnessFilter.setBrightness((i - 10.0f) / 10.0f);
+                    setFilter(1, gpuImageBrightnessFilter);
+
                 }
                 if (v.getId() == R.id.contrast) {
-                    EffectsUtility.contrastVal = a;
-                    effects.contrastChanged(i / 300.0f);
+                    EffectsUtility.contrastVal = i;
+                    gpuImageContrastFilter.setContrast(i / 300.0f);
+                    setFilter(2, gpuImageContrastFilter);
                 }
                 if (v.getId() == R.id.sharpness) {
-                    EffectsUtility.sharpVal = a;
-                    effects.sharpnessChanged((i - 30.0f) / 10.0f);
+                    EffectsUtility.sharpVal = i;
+                    gpuImageSharpenFilter.setSharpness((i - 30.0f) / 10.0f);
+                    setFilter(3, gpuImageSharpenFilter);
                 }
                 if (v.getId() == R.id.shadows) {
-                    EffectsUtility.ShadowVal = a;
-                    effects.shadowsChanged((i) / 100.0f);
+                    EffectsUtility.ShadowVal = i;
+                    gpuImageHighlightShadowFilter.setShadows(i / 100.0f);
+                    setFilter(6, gpuImageHighlightShadowFilter);
+
                 }
                 if (v.getId() == R.id.highlight) {
-                    EffectsUtility.highlightVal = a;
-                    effects.highlightsChanged((100.0f - i) / 100.0f);
+                    EffectsUtility.highlightVal = i;
+                    gpuImageHighlightShadowFilter.setHighlights((i) / 10.0f);
+                    setFilter(5, gpuImageHighlightShadowFilter);
+
                 }
                 if (v.getId() == R.id.exposure) {
-                    EffectsUtility.exposureVal = a;
-                    effects.exposureChanged((i - 1000) / 100.0f);
+                    EffectsUtility.exposureVal = i;
+                    gpuImageExposureFilter.setExposure((i - 1000.0f) / 100.0f);
+                    setFilter(4, gpuImageExposureFilter);
+
                 }
             }
 
@@ -123,24 +166,35 @@ public class EffectsFragment extends Fragment {
             }
 
 
+        }
+        final SeekBarListener seekBarListener = new SeekBarListener();
+        okay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+              effects_seekBar.setVisibility(View.GONE);
+              horizontalMenu.setVisibility(View.VISIBLE);
+              utility.setVisibility(View.VISIBLE);
+            }
         });
-        okay.setOnClickListener(new
         class EffectsOnClickListener implements View.OnClickListener {
             @Override
             public void onClick(View view) {
                 effects_seekBar.setVisibility(View.VISIBLE);
-                horizontalMenu.setVisibility(View.GONE);
+                //horizontalMenu.setVisibility(View.GONE);
 
                 seekBarListener.setView(view);
 
                 // setting seek bar position and progress
-                setSeekBarPosition(null, view);
+                setSeekBarPosition(view);
+
+                utility.setVisibility(View.GONE);
 
                 setSeekBar(view);
 
             }
-        });
-        View.OnClickListener() {
+        };
+        compare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View view)
             {
@@ -154,7 +208,7 @@ public class EffectsFragment extends Fragment {
                     window = getActivity().getWindow();
                     window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
                 } catch (NullPointerException n) {
-                    // Nothinf for now
+                    // Nothing for now
                 }
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.compareAlertDialogue);
                 ViewGroup viewGroup = mView.findViewById(android.R.id.content);
@@ -180,8 +234,7 @@ public class EffectsFragment extends Fragment {
                 });
                 alertDialog.show();
             }
-        }
-        final SeekBarListener seekBarListener = new SeekBarListener();
+        });
         sat.setOnProgressChangedListener(seekBarListener);
         cont.setOnProgressChangedListener(seekBarListener);
         bright.setOnProgressChangedListener(seekBarListener);
@@ -189,14 +242,6 @@ public class EffectsFragment extends Fragment {
         highlight.setOnProgressChangedListener(seekBarListener);
         shadow.setOnProgressChangedListener(seekBarListener);
         sharp.setOnProgressChangedListener(seekBarListener);
-        View.OnClickListener() {
-            @Override
-            public void onClick (View view){
-                effects.okayClicked();
-                horizontalMenu.setVisibility(View.VISIBLE);
-                effects_seekBar.setVisibility(View.GONE);
-            }
-        }
         EffectsOnClickListener effectsOnClickListener = new EffectsOnClickListener();
         saturation.setOnClickListener(effectsOnClickListener);
         contrast.setOnClickListener(effectsOnClickListener);
@@ -214,7 +259,7 @@ public class EffectsFragment extends Fragment {
         effects = (Effects) context;
     }
 
-    void setSeekBarPosition(SeekBar seekBar, View view) {
+    private void setSeekBarPosition(View view) {
         if (view.getId() == R.id.saturation) {
             sat.setProgress(EffectsUtility.satVal);
             TextView heading = effects_seekBar.findViewById(R.id.effects_heading);
@@ -252,89 +297,55 @@ public class EffectsFragment extends Fragment {
         }
     }
 
-    BubbleSeekBar setSeekBar(View v) {
+    private void setSeekBar(View v) {
         if (v.getId() == R.id.saturation) {
             sat.setVisibility(View.VISIBLE);
-            cont.setVisibility(View.GONE);
-            bright.setVisibility(View.GONE);
-            highlight.setVisibility(View.GONE);
-            expose.setVisibility(View.GONE);
-            shadow.setVisibility(View.GONE);
-            sharp.setVisibility(View.GONE);
-            return sat;
+            setVisibilityForViews(cont, bright, highlight, shadow, sharp, expose);
         } else if (v.getId() == R.id.contrast) {
-            sat.setVisibility(View.GONE);
             cont.setVisibility(View.VISIBLE);
-            bright.setVisibility(View.GONE);
-            highlight.setVisibility(View.GONE);
-            expose.setVisibility(View.GONE);
-            shadow.setVisibility(View.GONE);
-            sharp.setVisibility(View.GONE);
-            return cont;
+            setVisibilityForViews(sat, bright, highlight, shadow, sharp, expose);
         } else if (v.getId() == R.id.brightness) {
-            sat.setVisibility(View.GONE);
-            cont.setVisibility(View.GONE);
             bright.setVisibility(View.VISIBLE);
-            highlight.setVisibility(View.GONE);
-            expose.setVisibility(View.GONE);
-            shadow.setVisibility(View.GONE);
-            sharp.setVisibility(View.GONE);
-            return bright;
+            setVisibilityForViews(cont, sat, highlight, shadow, sharp, expose);
         } else if (v.getId() == R.id.highlight) {
-            sat.setVisibility(View.GONE);
-            cont.setVisibility(View.GONE);
-            bright.setVisibility(View.GONE);
             highlight.setVisibility(View.VISIBLE);
-            expose.setVisibility(View.GONE);
-            shadow.setVisibility(View.GONE);
-            sharp.setVisibility(View.GONE);
-            return highlight;
+            setVisibilityForViews(cont, bright, sat, shadow, sharp, expose);
         } else if (v.getId() == R.id.exposure) {
-            sat.setVisibility(View.GONE);
-            cont.setVisibility(View.GONE);
-            bright.setVisibility(View.GONE);
-            highlight.setVisibility(View.GONE);
             expose.setVisibility(View.VISIBLE);
-            shadow.setVisibility(View.GONE);
-            sharp.setVisibility(View.GONE);
-            return expose;
+            setVisibilityForViews(cont, bright, highlight, shadow, sharp, sat);
         } else if (v.getId() == R.id.shadows) {
-            sat.setVisibility(View.GONE);
-            cont.setVisibility(View.GONE);
-            bright.setVisibility(View.GONE);
-            highlight.setVisibility(View.GONE);
-            expose.setVisibility(View.GONE);
+
             shadow.setVisibility(View.VISIBLE);
-            sharp.setVisibility(View.GONE);
-            return shadow;
-        } else {
-            sat.setVisibility(View.GONE);
-            cont.setVisibility(View.GONE);
-            bright.setVisibility(View.GONE);
-            highlight.setVisibility(View.GONE);
-            expose.setVisibility(View.GONE);
-            shadow.setVisibility(View.GONE);
+            setVisibilityForViews(cont, bright, highlight, sat, sharp, expose);
+        } else if (v.getId() == R.id.sharpness) {
             sharp.setVisibility(View.VISIBLE);
-            return sharp;
+            setVisibilityForViews(cont, bright, highlight, shadow, sat, expose);
         }
     }
 
+    private void setVisibilityForViews(BubbleSeekBar v1, BubbleSeekBar v2, BubbleSeekBar v3, BubbleSeekBar v4, BubbleSeekBar v5, BubbleSeekBar v6) {
+        v1.setVisibility(View.GONE);
+        v2.setVisibility(View.GONE);
+        v3.setVisibility(View.GONE);
+        v4.setVisibility(View.GONE);
+        v5.setVisibility(View.GONE);
+        v6.setVisibility(View.GONE);
+    }
+
+    private void setFilter(int index, GPUImageFilter gpuImageFilter) {
+        gpuImage.deleteImage();
+        gpuImage.setImage(PhotoLab.bitmaps.get(0));
+        gpuImageFilterGroup.getFilters().remove(index);
+        gpuImageFilterGroup.getFilters().add(index, gpuImageFilter);
+        gpuImageFilterGroup.updateMergedFilters();
+        gpuImage.setFilter(gpuImageFilterGroup);
+        effects.setImage(gpuImage.getBitmapWithFilterApplied());
+    }
+
+
     interface Effects {
-        public void saturationChanged(float progress);
 
-        public void contrastChanged(float progress);
-
-        public void brightnessChanged(float progress);
-
-        public void sharpnessChanged(float progress);
-
-        public void shadowsChanged(float progress);
-
-        public void highlightsChanged(float progress);
-
-        public void exposureChanged(float progress);
-
-        public void okayClicked();
+        public void setImage(Bitmap b);
 
     }
 }

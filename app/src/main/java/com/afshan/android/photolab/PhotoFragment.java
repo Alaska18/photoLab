@@ -1,47 +1,31 @@
 package com.afshan.android.photolab;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.github.chrisbanes.photoview.OnSingleFlingListener;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.zomato.photofilters.imageprocessors.Filter;
 
-import jp.co.cyberagent.android.gpuimage.GPUImage;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageBrightnessFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageContrastFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageExposureFilter;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageHighlightShadowFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageSaturationFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageSharpenFilter;
 
 public class PhotoFragment extends Fragment {
-    static private Bitmap image;
     static Bitmap buffer;
-    private View view;
-    private ColorMatrix colorMatrix;
-    private ColorMatrixColorFilter colorMatrixColorFilter;
-    private Paint paint;
-    private Canvas canvas;
-    private Bitmap canvasBitmap;
+    static private Bitmap image;
     private PhotoView imageView;
     private ProgressBar progressBar;
-    private Bitmap saturation, contrast, brightness, sharpness, exposure, highlight, shadows;
-    private TextView level;
+    private int pointer = 1;
 
     static void setBitmap(Bitmap bitmap) {
 
@@ -56,31 +40,50 @@ public class PhotoFragment extends Fragment {
 
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.view = view;
         imageView = view.findViewById(R.id.photo);
         progressBar = view.findViewById(R.id.progressBar);
         progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.blue_bright), PorterDuff.Mode.SRC_IN);
         Bitmap b = PhotoLab.bitmaps.get(0).copy(Bitmap.Config.ARGB_8888, true);
         buffer = b.copy(Bitmap.Config.ARGB_8888, true);
-        saturation = b.copy(Bitmap.Config.ARGB_8888, true);
-        contrast = b.copy(Bitmap.Config.ARGB_8888, true);
-        brightness = b.copy(Bitmap.Config.ARGB_8888, true);
-        exposure = b.copy(Bitmap.Config.ARGB_8888, true);
-        shadows = b.copy(Bitmap.Config.ARGB_8888, true);
-        highlight = b.copy(Bitmap.Config.ARGB_8888, true);
-        sharpness = b.copy(Bitmap.Config.ARGB_8888, true);
         imageView.setImageBitmap(image);
-        colorMatrix = new ColorMatrix();
-        colorMatrixColorFilter = new ColorMatrixColorFilter(colorMatrix);
-        paint = new Paint();
-        paint.setColorFilter(colorMatrixColorFilter);
-        canvasBitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
-        canvas = new Canvas(canvasBitmap);
 
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    public void onSwipeLeft() {
+        if (1 + pointer < FilterFragment.filters.size()) {
+            int position = ++pointer;
+            if (FilterFragment.filters.get(position).getGpuImageFilter() == null && FilterFragment.filters.get(position).getGpuImageFilterGroup() == null) {
+                setFilter(FilterFragment.filters.get(position).getFilter());
+            } else if (FilterFragment.filters.get(position).getGpuImageFilterGroup() != null) {
+                setGPUImageFilterGroup(FilterFragment.filters.get(position).getGpuImageFilterGroup());
+            } else {
+                setGPUImageFilter(FilterFragment.filters.get(position).getGpuImageFilter());
+            }
+        }
+
+    }
+
+    public void onSwipeRight() {
+        if (pointer - 1 >= 0) {
+            int position = --pointer;
+            if (FilterFragment.filters.get(position).getGpuImageFilter() == null && FilterFragment.filters.get(position).getGpuImageFilterGroup() == null) {
+                setFilter(FilterFragment.filters.get(position).getFilter());
+            } else if (FilterFragment.filters.get(position).getGpuImageFilterGroup() != null) {
+                setGPUImageFilterGroup(FilterFragment.filters.get(position).getGpuImageFilterGroup());
+            } else {
+                setGPUImageFilter(FilterFragment.filters.get(position).getGpuImageFilter());
+            }
+        }
     }
 
     void setFilter(Filter filter) {
@@ -108,130 +111,41 @@ public class PhotoFragment extends Fragment {
         imageView.setImageBitmap(PhotoLab.bitmaps.get(0));
     }
 
-
-    void setContrast(float progress) {
-        Bitmap current = doImageFilterWork(new GPUImageContrastFilter(progress), contrast);
-
-        saturation = current.copy(Bitmap.Config.ARGB_8888, true);
-        brightness = current.copy(Bitmap.Config.ARGB_8888, true);
-        sharpness = current.copy(Bitmap.Config.ARGB_8888, true);
-        highlight = current.copy(Bitmap.Config.ARGB_8888, true);
-        shadows = current.copy(Bitmap.Config.ARGB_8888, true);
-        exposure = current.copy(Bitmap.Config.ARGB_8888, true);
+    public void removeOnFlingListener() {
+        imageView.setOnSingleFlingListener(null);
     }
 
-    void setSaturation(float progress) {
-        Bitmap current = doImageFilterWork(new GPUImageSaturationFilter(progress), saturation);
-
-        contrast = current.copy(Bitmap.Config.ARGB_8888, true);
-        brightness = current.copy(Bitmap.Config.ARGB_8888, true);
-        sharpness = current.copy(Bitmap.Config.ARGB_8888, true);
-        highlight = current.copy(Bitmap.Config.ARGB_8888, true);
-        shadows = current.copy(Bitmap.Config.ARGB_8888, true);
-        exposure = current.copy(Bitmap.Config.ARGB_8888, true);
+    void addOnFlingListener() {
+        imageView.setOnSingleFlingListener(new OnSingleFlingListener() {
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                final int SWIPE_THRESHOLD = 100;
+                final int SWIPE_VELOCITY_THRESHOLD = 100;
+                boolean result = false;
+                try {
+                    float diffY = e2.getY() - e1.getY();
+                    float diffX = e2.getX() - e1.getX();
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                            if (diffX > 0) {
+                                onSwipeRight();
+                            } else {
+                                onSwipeLeft();
+                            }
+                            result = true;
+                        }
+                    }
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+                return result;
+            }
+        });
     }
 
-    void setBrightness(float progress) {
-        Bitmap current = doImageFilterWork(new GPUImageBrightnessFilter(progress), brightness);
-
-        contrast = current.copy(Bitmap.Config.ARGB_8888, true);
-        saturation = current.copy(Bitmap.Config.ARGB_8888, true);
-        sharpness = current.copy(Bitmap.Config.ARGB_8888, true);
-        highlight = current.copy(Bitmap.Config.ARGB_8888, true);
-        shadows = current.copy(Bitmap.Config.ARGB_8888, true);
-        exposure = current.copy(Bitmap.Config.ARGB_8888, true);
-    }
-
-    void setShadows(float progress) {
-        Bitmap current = doImageFilterWork(new GPUImageHighlightShadowFilter(progress, 1.0f), shadows);
-
-        contrast = current.copy(Bitmap.Config.ARGB_8888, true);
-        brightness = current.copy(Bitmap.Config.ARGB_8888, true);
-        sharpness = current.copy(Bitmap.Config.ARGB_8888, true);
-        highlight = current.copy(Bitmap.Config.ARGB_8888, true);
-        saturation = current.copy(Bitmap.Config.ARGB_8888, true);
-        exposure = current.copy(Bitmap.Config.ARGB_8888, true);
-    }
-
-    void setSharpness(float progress) {
-        Bitmap current = doImageFilterWork(new GPUImageSharpenFilter(progress), sharpness);
-
-        contrast = current.copy(Bitmap.Config.ARGB_8888, true);
-        brightness = current.copy(Bitmap.Config.ARGB_8888, true);
-        saturation = current.copy(Bitmap.Config.ARGB_8888, true);
-        highlight = current.copy(Bitmap.Config.ARGB_8888, true);
-        shadows = current.copy(Bitmap.Config.ARGB_8888, true);
-        exposure = current.copy(Bitmap.Config.ARGB_8888, true);
-    }
-
-    void setHighlight(float progress) {
-        Bitmap current = doImageFilterWork(new GPUImageHighlightShadowFilter(0.0f, progress), highlight);
-
-        contrast = current.copy(Bitmap.Config.ARGB_8888, true);
-        brightness = current.copy(Bitmap.Config.ARGB_8888, true);
-        sharpness = current.copy(Bitmap.Config.ARGB_8888, true);
-        saturation = current.copy(Bitmap.Config.ARGB_8888, true);
-        shadows = current.copy(Bitmap.Config.ARGB_8888, true);
-        exposure = current.copy(Bitmap.Config.ARGB_8888, true);
-    }
-
-    void setExposure(float progress) {
-        Bitmap current = doImageFilterWork(new GPUImageExposureFilter(progress), exposure);
-
-        contrast = current.copy(Bitmap.Config.ARGB_8888, true);
-        brightness = current.copy(Bitmap.Config.ARGB_8888, true);
-        sharpness = current.copy(Bitmap.Config.ARGB_8888, true);
-        highlight = current.copy(Bitmap.Config.ARGB_8888, true);
-        shadows = current.copy(Bitmap.Config.ARGB_8888, true);
-        saturation = current.copy(Bitmap.Config.ARGB_8888, true);
-    }
-
-    void okayClicked() {
-        image = buffer.copy(Bitmap.Config.ARGB_8888, true);
-        imageView.setImageBitmap(buffer);
-    }
-
-    Bitmap doImageFilterWork(GPUImageFilter gpuImageFilter, Bitmap image) {
-        GPUImage gpuImage = new GPUImage(getContext());
-
-        int nh = (int) (image.getHeight() * (512.0 / image.getWidth()));
-        Bitmap mBitmap = Bitmap.createScaledBitmap(image, 512, nh, true);
-
-        gpuImage.setImage(mBitmap);
-
-        gpuImage.setFilter(gpuImageFilter);
-
-        imageView.setImageBitmap(gpuImage.getBitmapWithFilterApplied());
-
-        buffer = gpuImage.getBitmapWithFilterApplied().copy(Bitmap.Config.ARGB_8888, true);
-
-        return gpuImage.getBitmapWithFilterApplied();
-    }
-
-
-    /* void setImageSaturation(int progress)
-     {
-         AsyncSaturation saturation = new AsyncSaturation(progress, canvasBitmap, colorMatrix, colorMatrixColorFilter, paint, canvas, imageView, buffer, getContext());
-         saturation.execute();
-     }*/
-    void setImages() {
-        Bitmap b = PhotoLab.bitmaps.get(0).copy(Bitmap.Config.ARGB_8888, true);
+    void setImage(Bitmap b) {
         buffer = b.copy(Bitmap.Config.ARGB_8888, true);
-        saturation = b.copy(Bitmap.Config.ARGB_8888, true);
-        contrast = b.copy(Bitmap.Config.ARGB_8888, true);
-        brightness = b.copy(Bitmap.Config.ARGB_8888, true);
-        exposure = b.copy(Bitmap.Config.ARGB_8888, true);
-        shadows = b.copy(Bitmap.Config.ARGB_8888, true);
-        highlight = b.copy(Bitmap.Config.ARGB_8888, true);
-        sharpness = b.copy(Bitmap.Config.ARGB_8888, true);
-        EffectsUtility.satVal = 10;
-        EffectsUtility.brightVal = 10;
-        EffectsUtility.contrastVal = 300;
-        EffectsUtility.sharpVal = 30;
-        EffectsUtility.ShadowVal = 0;
-        EffectsUtility.highlightVal = 0;
-        EffectsUtility.exposureVal = 1000;
-
+        imageView.setImageBitmap(buffer);
     }
 
 
