@@ -26,6 +26,7 @@ public class PhotoFragment extends Fragment {
     private PhotoView imageView;
     private ProgressBar progressBar;
     private int pointer = 1;
+    int position = 1;
 
     static void setBitmap(Bitmap bitmap) {
 
@@ -61,7 +62,7 @@ public class PhotoFragment extends Fragment {
 
     public void onSwipeLeft() {
         if (1 + pointer < FilterFragment.filters.size()) {
-            int position = ++pointer;
+            position = ++pointer;
             if (FilterFragment.filters.get(position).getGpuImageFilter() == null && FilterFragment.filters.get(position).getGpuImageFilterGroup() == null) {
                 setFilter(FilterFragment.filters.get(position).getFilter());
             } else if (FilterFragment.filters.get(position).getGpuImageFilterGroup() != null) {
@@ -69,13 +70,15 @@ public class PhotoFragment extends Fragment {
             } else {
                 setGPUImageFilter(FilterFragment.filters.get(position).getGpuImageFilter());
             }
+            FilterFragment.recyclerView.smoothScrollToPosition(position);
+            FilterFragment.itemSelected(position);
         }
 
     }
 
     public void onSwipeRight() {
         if (pointer - 1 >= 0) {
-            int position = --pointer;
+            position = --pointer;
             if (FilterFragment.filters.get(position).getGpuImageFilter() == null && FilterFragment.filters.get(position).getGpuImageFilterGroup() == null) {
                 setFilter(FilterFragment.filters.get(position).getFilter());
             } else if (FilterFragment.filters.get(position).getGpuImageFilterGroup() != null) {
@@ -83,6 +86,8 @@ public class PhotoFragment extends Fragment {
             } else {
                 setGPUImageFilter(FilterFragment.filters.get(position).getGpuImageFilter());
             }
+            FilterFragment.recyclerView.smoothScrollToPosition(position);
+            FilterFragment.itemSelected(position);
         }
     }
 
@@ -146,6 +151,10 @@ public class PhotoFragment extends Fragment {
     void setImage(Bitmap b) {
         buffer = b.copy(Bitmap.Config.ARGB_8888, true);
         imageView.setImageBitmap(buffer);
+    }
+    void setPointer(int pointerPosition)
+    {
+        this.pointer = pointerPosition;
     }
 
 

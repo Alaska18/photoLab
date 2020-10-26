@@ -181,7 +181,7 @@ public class EffectsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 effects_seekBar.setVisibility(View.VISIBLE);
-                //horizontalMenu.setVisibility(View.GONE);
+                horizontalMenu.setVisibility(View.GONE);
 
                 seekBarListener.setView(view);
 

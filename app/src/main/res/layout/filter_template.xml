@@ -1,43 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/Platform.MaterialComponents.Light"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:id="@+id/filter_template"
-    android:alpha="0.95"
-    android:background="@color/black"
-    app:cardCornerRadius="5dp">
+    android:layout_margin="10dp"
+    app:cardCornerRadius="5dp"
+    app:cardElevation="5dp">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
+        android:id="@+id/filter_template"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0.95"
+        android:background="@color/black">
 
-        <ProgressBar
-            android:id="@+id/progressBarT"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/menu_image"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:scaleType="centerCrop" />
-
-        <TextView
-            android:id="@+id/menu_text"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:background="@color/blue_bright"
-            android:textColor="@color/black"
-            android:gravity="center_horizontal"
-            android:textSize="10sp"
-            app:fontFamily="@font/assistant_extralight" />
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-</LinearLayout>
+            <ProgressBar
+                android:id="@+id/progressBarT"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/menu_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/menu_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/blue_bright"
+                android:gravity="center_horizontal"
+                android:textColor="@color/black"
+                android:textSize="10sp"
+                app:fontFamily="@font/assistant_extralight" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

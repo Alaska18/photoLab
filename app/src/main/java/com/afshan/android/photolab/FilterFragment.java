@@ -35,7 +35,6 @@ import jp.co.cyberagent.android.gpuimage.filter.GPUImageHazeFilter;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageHighlightShadowFilter;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageHueFilter;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageMonochromeFilter;
-import jp.co.cyberagent.android.gpuimage.filter.GPUImageRGBDilationFilter;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageRGBFilter;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageSepiaToneFilter;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageSharpenFilter;
@@ -48,7 +47,7 @@ public class FilterFragment extends Fragment {
     static RecyclerView.LayoutManager layoutManager;
     static ArrayList<MenuFilter> filters;
     public View view;
-    private TextView textView;
+    private static TextView textView;
     private TextView pro;
     private TextView BandW;
     private TextView special;
@@ -56,6 +55,7 @@ public class FilterFragment extends Fragment {
     private TextView premium;
     private Image mImage;
     private View mView;
+    private static int previousPos = -1;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -149,28 +149,19 @@ public class FilterFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     recyclerView.smoothScrollToPosition(0);
-                    pro.setBackgroundColor(getResources().getColor(R.color.blue_bright));
-                    BandW.setBackgroundColor(getResources().getColor(R.color.white));
-                    special.setBackgroundColor(getResources().getColor(R.color.white));
-                    special2.setBackgroundColor(getResources().getColor(R.color.white));
-                    premium.setBackgroundColor(getResources().getColor(R.color.white));
                 }
             });
             BandW.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     recyclerView.smoothScrollToPosition(19);
-                    pro.setBackgroundColor(getResources().getColor(R.color.white));
-                    BandW.setBackgroundColor(getResources().getColor(R.color.blue_bright));
-                    special.setBackgroundColor(getResources().getColor(R.color.white));
-                    special2.setBackgroundColor(getResources().getColor(R.color.white));
-                    premium.setBackgroundColor(getResources().getColor(R.color.white));
                 }
             });
             adapter.notifyDataSetChanged();
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), RecyclerView.HORIZONTAL, false);
             recyclerView.setLayoutManager(linearLayoutManager);
             recyclerView.setAdapter(adapter);
+            //recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getContext()));
 
         }
     }
@@ -208,7 +199,6 @@ public class FilterFragment extends Fragment {
         filters.add(new MenuFilter(new GPUImageBrightnessFilter(0.3f), "Brightness"));
         filters.add(new MenuFilter(new GPUImageExposureFilter(), "Exposure"));
         filters.add(new MenuFilter(new GPUImageRGBFilter(4, 3, 2), "RGB"));
-        filters.add(new MenuFilter(new GPUImageRGBDilationFilter(25), "RGB+"));
         filters.add(new MenuFilter(new GPUImageHueFilter(), "Hue"));
         filters.add(new MenuFilter(new GPUImageHueFilter(180.0f), "Hue+"));
         filters.add(new MenuFilter(new GPUImageWhiteBalanceFilter(6000.0f, 45), "White Balance"));
@@ -278,5 +268,9 @@ public class FilterFragment extends Fragment {
         void setOriginalImage();
 
         public void addOnFlingListener();
+    }
+    public static void itemSelected(int position)
+    {
+        textView.setText(filters.get(position).getFilterName());
     }
 }

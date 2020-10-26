@@ -66,6 +66,7 @@ public class MyAdapter extends RecyclerView.Adapter {
                 } else {
                     photoFragment.setGPUImageFilter(filters.get(position).getGpuImageFilter());
                 }
+                photoFragment.setPointer(position);
                 filterFragment.setName(filters.get(position).getFilterName());
             }
         });

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/black"
+    android:orientation="vertical">
+    <LinearLayout
+        android:id="@+id/draw_heading_ll"
+        android:layout_width="match_parent"
+        android:layout_margin="5dp"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/undo"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:src="@drawable/undo"/>
+
+        <TextView
+            android:id="@+id/eraser"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/Eraser"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/brush"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/brush"
+            android:textColor="@color/white" />
+
+
+        <ImageView
+            android:id="@+id/redo"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:src="@drawable/redo"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/brushLayout"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Brush size :"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:fontFamily="@font/assistant_extralight" />
+
+    <com.xw.repo.BubbleSeekBar
+        android:id="@+id/seekBarBrushSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:bsb_bubble_color="@color/white"
+        app:bsb_bubble_text_color="@color/black"
+        app:bsb_is_float_type="false"
+        app:bsb_max="0"
+        app:bsb_min="10"
+        app:bsb_progress="5"
+        app:bsb_second_track_color="@color/blue_bright"
+        app:bsb_section_text_color="@color/white"
+        app:bsb_section_text_position="sides"
+        app:bsb_section_text_size="12sp"
+        app:bsb_show_thumb_text="true"
+        app:bsb_touch_to_seek="true"
+        app:bsb_track_color="@color/white" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Opacity :"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:fontFamily="@font/assistant_extralight" />
+
+    <com.xw.repo.BubbleSeekBar
+        android:id="@+id/seekBarOpacity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:bsb_bubble_color="@color/white"
+        app:bsb_bubble_text_color="@color/black"
+        app:bsb_is_float_type="false"
+        app:bsb_max="10"
+        app:bsb_min="0"
+        app:bsb_progress="5"
+        app:bsb_second_track_color="@color/blue_bright"
+        app:bsb_section_text_color="@color/white"
+        app:bsb_section_text_position="sides"
+        app:bsb_section_text_size="12sp"
+        app:bsb_show_thumb_text="true"
+        app:bsb_touch_to_seek="true"
+        app:bsb_track_color="@color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/eraserLayout"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Size:"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:fontFamily="@font/assistant_extralight" />
+
+    <com.xw.repo.BubbleSeekBar
+        android:id="@+id/seekBarEraser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:bsb_bubble_color="@color/white"
+        app:bsb_bubble_text_color="@color/black"
+        app:bsb_is_float_type="false"
+        app:bsb_max="10"
+        app:bsb_min="0"
+        app:bsb_progress="5"
+        app:bsb_second_track_color="@color/blue_bright"
+        app:bsb_section_text_color="@color/white"
+        app:bsb_section_text_position="sides"
+        app:bsb_section_text_size="12sp"
+        app:bsb_show_thumb_text="true"
+        app:bsb_touch_to_seek="true"
+        app:bsb_track_color="@color/white" />
+</LinearLayout>
+
+</LinearLayout>

@@ -86,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_weight="1"
-                android:src="@drawable/effects" />
+                android:src="@drawable/effects_new" />
 
             <ImageView
                 android:id="@+id/emoji"
@@ -95,6 +95,13 @@
                 android:layout_margin="10dp"
                 android:layout_weight="1"
                 android:src="@drawable/emoji" />
+            <ImageView
+                android:id="@+id/draw"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:src="@drawable/pencil" />
 
             <ImageView
                 android:id="@+id/text"

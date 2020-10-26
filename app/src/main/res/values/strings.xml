@@ -45,6 +45,8 @@
     <string name="original">Original</string>
     <string name="edited">Edited</string>
     <string name="Effects">Effects</string>
+    <string name="Eraser">Eraser</string>
+    <string name="brush">Brush</string>
     <string name="launchingLab">Sorry. Error code : 2</string>
     <string name="settingActionBar">Sorry. Error code : 3</string>
     <string name="startingIntroVideo">Sorry. Error code : 4</string>
