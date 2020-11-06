@@ -219,17 +219,17 @@
 
             </LinearLayout>
         </HorizontalScrollView>
+
     <com.rtugeek.android.colorseekbar.ColorSeekBar
         android:id="@+id/color_bar"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:barHeight="7dp"
         android:layout_below="@id/horizontal_fonts"
-        app:showAlphaBar="true"
         app:alphaBarPosition="10"
-        app:colorBarPosition="10"
+        app:barHeight="7dp"
         app:barMargin="10dp"
-        app:colorSeeds="@array/material_colors"/>
+        app:colorBarPosition="10"
+        app:showAlphaBar="true" />
 
 
     <EditText

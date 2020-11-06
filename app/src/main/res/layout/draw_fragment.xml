@@ -33,7 +33,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/brush"
-            android:textColor="@color/white" />
+            android:textColor="@color/blue_bright" />
 
 
         <ImageView
@@ -103,6 +103,15 @@
         app:bsb_show_thumb_text="true"
         app:bsb_touch_to_seek="true"
         app:bsb_track_color="@color/white" />
+
+        <com.rtugeek.android.colorseekbar.ColorSeekBar
+            android:id="@+id/colorsSeekBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:alphaBarPosition="10"
+            app:barHeight="7dp"
+            app:barMargin="10dp"
+            app:colorBarPosition="10" />
     </LinearLayout>
 
     <LinearLayout
@@ -139,6 +148,6 @@
         app:bsb_show_thumb_text="true"
         app:bsb_touch_to_seek="true"
         app:bsb_track_color="@color/white" />
-</LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

@@ -28,7 +28,6 @@ public class TextFragment extends Fragment
     private Typeface typeface;
     private int color;
     private View mView;
-    ImageView okay;
     private ImageView close, done;
     private TextInterface textInterface;
     private AlertDialog alertDialog = null;
@@ -47,7 +46,6 @@ public class TextFragment extends Fragment
         typeface = ResourcesCompat.getFont(getActivity(), R.font.assistant_extralight);
         editText = view.findViewById(R.id.edit_text);
         mView = view;
-        okay = view.findViewById(R.id.done_trial);
         close = view.findViewById(R.id.close_edit_text);
         done = view.findViewById(R.id.done_edit_text);
         t1 = view.findViewById(R.id.t1);
@@ -64,12 +62,6 @@ public class TextFragment extends Fragment
         t12 = view.findViewById(R.id.t12);
         t13 = view.findViewById(R.id.t13);
         t14 = view.findViewById(R.id.t14);
-        okay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                textInterface.okay();
-            }
-        });
 
         addText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -253,7 +245,6 @@ public class TextFragment extends Fragment
     interface  TextInterface
     {
         public void addText(int color, String Text, Typeface typeface, boolean isRequested);
-        public void okay();
     }
     public void requestNewText()
     {

@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,7 +45,7 @@ import jp.co.cyberagent.android.gpuimage.filter.GPUImageWhiteBalanceFilter;
 
 public class FilterFragment extends Fragment {
     static RecyclerView recyclerView;
-    static RecyclerView.LayoutManager layoutManager;
+    private static RecyclerView.LayoutManager layoutManager;
     static ArrayList<MenuFilter> filters;
     public View view;
     private static TextView textView;
@@ -222,6 +223,9 @@ public class FilterFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+
+
+        Toast.makeText(getContext(), "" + context, Toast.LENGTH_SHORT).show();
         mImage = (Image) context;
     }
 
@@ -269,7 +273,7 @@ public class FilterFragment extends Fragment {
 
         public void addOnFlingListener();
     }
-    public static void itemSelected(int position)
+    static void itemSelected(int position)
     {
         textView.setText(filters.get(position).getFilterName());
     }

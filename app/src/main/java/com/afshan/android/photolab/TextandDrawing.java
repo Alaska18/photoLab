@@ -23,7 +23,6 @@ public class TextandDrawing extends Fragment {
     private static PhotoEditorView imageView;
     private static PhotoEditor mPhotoEditor;
     private TextView textView;
-    private static Bitmap bitmap;
     private View mView;
     private Context mContext;
 
@@ -106,15 +105,15 @@ public class TextandDrawing extends Fragment {
             mPhotoEditor.editText(mView, typeface, text, color);
         }
     }
-    public static void getBitmap()
+    public void getBitmap()
     {
         mPhotoEditor.saveAsBitmap(new OnSaveBitmap() {
             @Override
             public void onBitmapReady(Bitmap saveBitmap)
             {
-                 imageView.getSource().setImageBitmap(saveBitmap);
-                 PhotoFragment.setBitmap(saveBitmap);
                  PhotoLab.bitmaps.add(0, saveBitmap);
+                 textView.setMyTransition();
+
             }
 
             @Override
@@ -123,15 +122,10 @@ public class TextandDrawing extends Fragment {
             }
         });
     }
-    public void setDrawingMode()
-    {
-        imageView.getSource().setImageBitmap(image.copy(Bitmap.Config.ARGB_8888, true));
-        mPhotoEditor = new PhotoEditor.Builder(getContext(), imageView).setPinchTextScalable(true).build();
-        mPhotoEditor.setBrushEraserSize(2.0f);
-        mPhotoEditor.setBrushColor(getContext().getResources().getColor(R.color.white));
-    }
     interface TextView
     {
         public void requestNewText();
+
+        void setMyTransition();
     }
 }

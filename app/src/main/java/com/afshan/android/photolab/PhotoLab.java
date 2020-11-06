@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import es.dmoral.toasty.Toasty;
 
 
-public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClicked, FilterFragment.Image, EffectsFragment.Effects, TextFragment.TextInterface, TextandDrawing.TextView {
+public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClicked, FilterFragment.Image, EffectsFragment.Effects, TextFragment.TextInterface, TextandDrawing.TextView, DrawFragment.draw, Drawing.transition {
     static final int MAX_HEIGHT = 900;
     static int height = 0;
     static int width = 0;
@@ -41,8 +41,11 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
     View parent;
     View actionBar;
     ImageView check;
+    View frame;
     PhotoFragment mPhotoFragment;
     PhotoFragment photoFragment;
+    TextFragment textFragment;
+    DrawFragment drawFragment;
     View menuBar;
 
     public static int getOrientation(Context context, Uri photoUri) {
@@ -177,7 +180,7 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
         final ImageView effects = findViewById(R.id.effects);
         final ImageView text = findViewById(R.id.text);
         final ImageView draw = findViewById(R.id.draw);
-        final View frame = findViewById(R.id.fragment_frame);
+         frame = findViewById(R.id.fragment_frame);
 
 
         photoFragment = new PhotoFragment();
@@ -428,16 +431,14 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
         text.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final TextFragment textFragment = new TextFragment();
+                textFragment = new TextFragment();
                 fragmentTransition(textFragment);
 
                 setActionBar(R.layout.utility_nav_bar);
                 actionBar = getSupportActionBar().getCustomView();
                 TextView heading = actionBar.findViewById(R.id.heading);
                 ImageView check = actionBar.findViewById(R.id.check);
-                check.setImageResource(R.drawable.close);
                 ImageView close = actionBar.findViewById(R.id.close);
-                close.setImageResource(R.drawable.back_arrow);
                 heading.setText("Text");
 
                 final TextandDrawing textandDrawing = new TextandDrawing();
@@ -446,6 +447,15 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
 
                 frame.setVisibility(View.VISIBLE);
                 menuBar.setVisibility(View.GONE);
+
+                check.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        TextandDrawing textandDrawing1 = (TextandDrawing)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+                        textandDrawing1.getBitmap();
+                    }
+                });
 
                 close.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -472,16 +482,43 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
             @Override
             public void onClick(View view)
             {
-                final DrawFragment drawFragment = new DrawFragment();
+                drawFragment = new DrawFragment();
                 fragmentTransition(drawFragment);
 
                 setActionBar(R.layout.utility_nav_bar);
                 actionBar = getSupportActionBar().getCustomView();
                 TextView heading = actionBar.findViewById(R.id.heading);
                 ImageView check = actionBar.findViewById(R.id.check);
-                check.setImageResource(R.drawable.close);
                 ImageView close = actionBar.findViewById(R.id.close);
-                close.setImageResource(R.drawable.back_arrow);
+                check.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Drawing drawing = (Drawing)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+                        drawing.getBitmap();
+                    }
+                });
+
+                close.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        setUtilityFragment(photoFragment);
+
+                        // post image setting work
+                        setActionBar(R.layout.lab_navbar);
+
+                        // initialising fragment and hiding it
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        fragmentManager.beginTransaction().hide(photoFragment);
+
+                        // re-forming visibility
+                        menuBar.setVisibility(View.VISIBLE);
+                        frame.setVisibility(View.GONE);
+                    }
+                });
+
                 heading.setText("Draw");
 
                 final Drawing drawing = new Drawing();
@@ -577,14 +614,66 @@ public class PhotoLab extends AppCompatActivity implements CropFragment.ItemClic
       TextFragment textFragment = (TextFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_frame);
       textFragment.requestNewText();
     }
-    @Override
-    public void okay()
+    public void setMyTransition()
     {
-        TextandDrawing textandDrawing = (TextandDrawing)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
-        textandDrawing.getBitmap();
-    }
-    public static void setMyTransition()
-    {
+        setActionBar(R.layout.lab_navbar);
 
+        // initialising fragment and hiding it
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().hide(textFragment);
+
+        // re-forming visibility
+        menuBar.setVisibility(View.VISIBLE);
+        frame.setVisibility(View.GONE);
+
+        setUtilityFragment(photoFragment);
+        PhotoFragment.setBitmap(bitmaps.get(0));
+    }
+    public void brushSize(float size)
+    {
+        Drawing drawing = (Drawing)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        drawing.brushSize(size);
+    }
+    public void brushOpacity(int opacity)
+    {
+        Drawing drawing = (Drawing)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        drawing.brushOpacity(opacity);
+    }
+    public void brushColor(int color)
+    {
+        Drawing drawing = (Drawing)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        drawing.brushColor(color);
+    }
+    public void setEraserSize(int size)
+    {
+        Drawing drawing = (Drawing)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        drawing.setEraserSize(size);
+    }
+    public void undo()
+    {
+        Drawing drawing = (Drawing)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        drawing.undo();
+    }
+    public void redo()
+    {
+        Drawing drawing = (Drawing)getSupportFragmentManager().findFragmentById(R.id.fragmentImage);
+        drawing.redo();
+    }
+
+    @Override
+    public void setTransition()
+    {
+        setActionBar(R.layout.lab_navbar);
+
+        // initialising fragment and hiding it
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().hide(drawFragment);
+
+        // re-forming visibility
+        menuBar.setVisibility(View.VISIBLE);
+        frame.setVisibility(View.GONE);
+
+        setUtilityFragment(photoFragment);
+        PhotoFragment.setBitmap(bitmaps.get(0));
     }
 }
